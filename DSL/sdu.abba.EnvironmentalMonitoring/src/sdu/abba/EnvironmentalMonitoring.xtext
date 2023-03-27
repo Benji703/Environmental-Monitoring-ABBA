@@ -1,0 +1,9 @@
+grammar sdu.abba.EnvironmentalMonitoring with org.eclipse.xtext.common.Terminals
+
+generate environmentalMonitoring "http://www.abba.sdu/EnvironmentalMonitoring"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
