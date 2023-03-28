@@ -8,5 +8,8 @@ Bundle-SymbolicName: sdu.abba.EnvironmentalMonitoring.ide; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: sdu.abba.EnvironmentalMonitoring,
  org.eclipse.xtext.ide,
- org.eclipse.xtext.xbase.ide
+ org.eclipse.xtext.xbase.ide,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: sdu.abba.ide.contentassist.antlr,
+ sdu.abba.ide.contentassist.antlr.internal

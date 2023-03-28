@@ -8,5 +8,22 @@ Bundle-SymbolicName: sdu.abba.EnvironmentalMonitoring; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.xbase,
- org.eclipse.equinox.common;bundle-version="3.16.0"
+ org.eclipse.equinox.common;bundle-version="3.16.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: sdu.abba.services,
+ sdu.abba.parser.antlr,
+ sdu.abba.serializer,
+ sdu.abba.scoping,
+ sdu.abba.environmentalMonitoring.util,
+ sdu.abba.parser.antlr.internal,
+ sdu.abba.environmentalMonitoring,
+ sdu.abba,
+ sdu.abba.environmentalMonitoring.impl,
+ sdu.abba.validation,
+ sdu.abba.generator
+Import-Package: org.apache.log4j

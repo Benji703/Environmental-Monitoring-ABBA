@@ -3,7 +3,30 @@ grammar sdu.abba.EnvironmentalMonitoring with org.eclipse.xtext.common.Terminals
 generate environmentalMonitoring "http://www.abba.sdu/EnvironmentalMonitoring"
 
 Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
+	machines+=Machine*;
+
+Machine:
+	'machine' name=ID
+		sensors+=Sensor*
+;
+
+Sensor:
+	'sensor' name=ID
+		settings+=(Setting)*
+;
+
+Setting:
+	(SamplingRate | BatchSize)
+;
+
+SamplingRate:
+	'sampling' 'rate' '=' value=INT'/'unit=Unit
+;
+
+BatchSize:
+	'batch' 'size' '=' value=INT
+;
+
+Unit:
+	{Minute}'m' ID='Minute' | {Second}'s' | {Hour}'h' | {Day}'d' | {Month}'mo' | {Year}'y'
+;
