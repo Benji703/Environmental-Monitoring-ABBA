@@ -16,17 +16,22 @@ Sensor:
 ;
 
 Setting:
-	(SamplingRate | BatchSize)
+	(SamplingRate | BatchSize)		// TODO: Only allow for one of each kind
 ;
 
 SamplingRate:
-	'sampling' 'rate' '=' value=INT'/'unit=Unit
+	'sampling' 'rate' '=' value=INT ('/'|'per') unit=Unit
 ;
 
 BatchSize:
 	'batch' 'size' '=' value=INT
 ;
 
-Unit:
-	{Minute}'m' ID='Minute' | {Second}'s' | {Hour}'h' | {Day}'d' | {Month}'mo' | {Year}'y'
+Unit returns Unit:
+	{Second} ('s'|'second') | 
+	{Minute} ('m'|'month') | 
+	{Hour} ('h'|'hour') | 
+	{Day} ('d'|'day') | 
+	{Month} ('mo'|'month') | 
+	{Year} ('y'|'year')
 ;

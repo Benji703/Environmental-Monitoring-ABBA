@@ -7,6 +7,17 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import sdu.abba.environmentalMonitoring.Machine
+import sdu.abba.environmentalMonitoring.Sensor
+import sdu.abba.environmentalMonitoring.Setting
+import sdu.abba.environmentalMonitoring.BatchSize
+import sdu.abba.environmentalMonitoring.SamplingRate
+import sdu.abba.environmentalMonitoring.Second
+import sdu.abba.environmentalMonitoring.Minute
+import sdu.abba.environmentalMonitoring.Hour
+import sdu.abba.environmentalMonitoring.Day
+import sdu.abba.environmentalMonitoring.Month
+import sdu.abba.environmentalMonitoring.Year
 
 /**
  * Generates code from your model files on save.
@@ -16,10 +27,71 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+		fsa.generateFile('configuration.json', serializeToJson(resource))
+	}
+		
+	def String serializeToJson(Resource resource) {
+		
+		val machines = resource.allContents
+			.filter(Machine)
+			.toList
+		
+		val json = '''
+		[
+			«FOR machine : machines SEPARATOR ','»
+				«machine.serialize»
+			«ENDFOR»
+		]
+		'''
+		
+		return json
+	}
+		
+	def String serialize(Machine machine)'''
+	{
+		name: "«machine.name»",
+		sensors: [
+			«FOR sensor : machine.sensors SEPARATOR ','»
+				«sensor.serialize»
+			«ENDFOR»
+		]
+	}
+	'''
+	
+	def String serialize(Sensor sensor)'''
+	{
+		name: "«sensor.name»",
+		settings: {
+			«FOR setting : sensor.settings SEPARATOR ','»
+				«setting.serializeSetting»
+			«ENDFOR»
+		}
+	}
+	'''
+	
+	def dispatch String serializeSetting(Setting setting) {
+		throw new UnsupportedOperationException("We don't handle abstract settings")
+	}
+	
+	def dispatch String serializeSetting(BatchSize batchSize)'''
+	batchSize: «batchSize.value»
+	'''
+	
+	def dispatch String serializeSetting(SamplingRate samplingRate)'''
+	samplingRate: «samplingRate.convertToSeconds»
+	'''
+	
+	def float convertToSeconds(SamplingRate samplingRate) {
+		val unit = samplingRate.unit
+		
+		switch unit {
+			Second: 	return samplingRate.value
+			Minute: 	return samplingRate.value / 60f
+			Hour: 		return samplingRate.value / (60f*60)
+			Day: 		return samplingRate.value / (60f*60*24)
+			Month: 		return samplingRate.value / (60f*60*24*30) 	// TODO: This has varying days in the months...
+			Year: 		return samplingRate.value / (60f*60*24*365)	// TODO: What about leap year
+			default: 	throw new UnsupportedOperationException("Unit type is not supported")
+		}
 	}
 }
