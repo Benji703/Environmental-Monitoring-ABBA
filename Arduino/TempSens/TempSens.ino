@@ -5,18 +5,21 @@
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+  #include <ArduinoJson.h>
 
 // GPIO where the DS18B20 is connected to
 const int oneWireBus = 33;  
 float sampleRate = 1; //Samples per second
 float interval = 1000/sampleRate;
 
-const int initialBatchSize = 5;
+const int initialBatchSize = 50;
 
 int batchSize = initialBatchSize;
-int batchNum = 1;
+int batchNum = 0;
 
-float measurements[initialBatchSize];
+float measurements[1000];
 
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(oneWireBus);
@@ -33,22 +36,36 @@ void setup() {
 
 void loop() {
   
-  if (batchNum > batchSize) {
+  if (batchNum > batchSize-1) {
     Serial.println("Send batch");
-    batchNum = 1;
+    for (int i = 0; i < batchNum; i++) {
+      Serial.println(measurements[i]); //TODO: Send data over HTTP
+    }
+    setBatchSize(batchSize);
   }
   
   sensors.requestTemperatures(); 
-  float temperatureC = sensors.getTempCByIndex(0);
-  Serial.print(temperatureC);
-  Serial.println("ºC");
+  measurements[batchNum] = sensors.getTempCByIndex(0);
+  batchNum = batchNum + 1;
+  
   delay(interval); //Amount of miliseconds between each meassurement
   setSampleRate(sampleRate+1);
 
-  batchNum = batchNum + 1;
+  
 }
 
 void setSampleRate(float samp) {
   sampleRate = samp;
   interval = 1000/sampleRate;
+}
+
+void setBatchSize(int newBatchSize) {
+  batchSize = newBatchSize;
+  //TODO: Send current measurements
+  
+  batchNum = 0;
+}
+
+void sendBatch() {
+  
 }
