@@ -7,7 +7,16 @@
 #include <DallasTemperature.h>
 
 // GPIO where the DS18B20 is connected to
-const int oneWireBus = 4;     
+const int oneWireBus = 33;  
+float sampleRate = 1; //Samples per second
+float interval = 1000/sampleRate;
+
+const int initialBatchSize = 5;
+
+int batchSize = initialBatchSize;
+int batchNum = 1;
+
+float measurements[initialBatchSize];
 
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(oneWireBus);
@@ -23,9 +32,23 @@ void setup() {
 }
 
 void loop() {
+  
+  if (batchNum > batchSize) {
+    Serial.println("Send batch");
+    batchNum = 1;
+  }
+  
   sensors.requestTemperatures(); 
   float temperatureC = sensors.getTempCByIndex(0);
   Serial.print(temperatureC);
   Serial.println("ºC");
-  delay(250);
+  delay(interval); //Amount of miliseconds between each meassurement
+  setSampleRate(sampleRate+1);
+
+  batchNum = batchNum + 1;
+}
+
+void setSampleRate(float samp) {
+  sampleRate = samp;
+  interval = 1000/sampleRate;
 }
