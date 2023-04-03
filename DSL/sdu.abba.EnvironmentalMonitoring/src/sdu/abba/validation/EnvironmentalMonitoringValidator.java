@@ -3,6 +3,17 @@
  */
 package sdu.abba.validation;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.xtext.validation.Check;
+
+import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
+import sdu.abba.environmentalMonitoring.Machine;
+import sdu.abba.environmentalMonitoring.Model;
+import sdu.abba.environmentalMonitoring.Sensor;
+import sdu.abba.environmentalMonitoring.Setting;
 
 /**
  * This class contains custom validation rules. 
@@ -11,15 +22,67 @@ package sdu.abba.validation;
  */
 public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonitoringValidator {
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					EnvironmentalMonitoringPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	@Check
+	public void checkSettingsAreNoteDuplicated(Sensor sensor) {
+		
+		HashMap<String, Integer> settingsCount = new HashMap<>();
+		
+		for (Setting setting : sensor.getSettings()) {
+			
+			String className = setting.getClass().toString();
+			
+			settingsCount.putIfAbsent(className, 0);
+			int count = settingsCount.get(className);
+			count++;
+			settingsCount.replace(className, count);
+		}
+		
+		EList<Setting> settings = sensor.getSettings();
+		for (int i = 0; i < settings.size(); i++) {
+			Setting setting = settings.get(i);
+			
+			String className = setting.getClass().toString();
+			Integer count = settingsCount.get(className);
+			
+			if (count > 1) {
+				error("'"+className + "' can only be configured once", EnvironmentalMonitoringPackage.Literals.SENSOR__SETTINGS, i);
+			}
+		}
+	}
+	
+	
+	@Check
+	public void checkMachineNamesAreNotDuplicated(Model model) {
+	
+		HashSet<String> names = new HashSet<>();
+		
+		EList<Machine> machines = model.getMachines();
+		for (int i = 0; i < machines.size(); i++) {
+			Machine machine = machines.get(i);
+			
+			if (names.contains(machine.getName())) {
+				error("This machine name is already in use", EnvironmentalMonitoringPackage.Literals.MODEL__MACHINES, i);
+			}
+			
+			names.add(machine.getName());
+		}
+	}
+	
+	@Check
+	public void checkSensorNamesAreNotDuplicated(Machine machine) {
+		
+		HashSet<String> names = new HashSet<>();
+		
+		EList<Sensor> sensors = machine.getSensors();
+		for (int i = 0; i < sensors.size(); i++) {
+			Sensor sensor = sensors.get(i);
+			
+			if (names.contains(sensor.getName())) {
+				error("This sensor name is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
+			}
+			
+			names.add(sensor.getName());
+		}
+	}
 	
 }
