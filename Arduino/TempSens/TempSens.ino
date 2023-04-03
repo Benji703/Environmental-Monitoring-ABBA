@@ -7,7 +7,7 @@
 #include <DallasTemperature.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-  #include <ArduinoJson.h>
+#include <ArduinoJson.h>
 
 // GPIO where the DS18B20 is connected to
 const int oneWireBus = 33;  
@@ -21,6 +21,9 @@ int batchNum = 0;
 
 float measurements[1000];
 
+char ssid[] = "BimseNet";
+char password[] = "vffj8352";
+
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(oneWireBus);
 
@@ -32,6 +35,13 @@ void setup() {
   Serial.begin(115200);
   // Start the DS18B20 sensor
   sensors.begin();
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
 }
 
 void loop() {
@@ -67,5 +77,15 @@ void setBatchSize(int newBatchSize) {
 }
 
 void sendBatch() {
-  
+  HTTPClient http;
+  http.begin("0.0.0.0");
+  http.addHeader("Content-Type", "application/json");
+
+  int httpCode = http.POST();
+
+  if (httpCode != HTTP_CODE_OK) {
+     
+  }
+
+  http.end();
 }
