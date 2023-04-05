@@ -2,9 +2,12 @@
 import paho.mqtt.client as mqtt 
 from random import uniform
 import time
+import json
 
 def on_message(client, userdata, message):
-    print("The backend received message: ", str(message.payload.decode("utf-8")))
+    parsed_json = json.loads(message.payload.decode("utf-8"))
+    print(parsed_json)
+    #print("The backend received message: ", str(message.payload.decode("utf-8")))
 
 
 #mqttBroker = "mqtt.eclipseprojects.io"
