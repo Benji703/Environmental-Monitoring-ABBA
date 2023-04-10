@@ -9,7 +9,7 @@
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
 
-String deviceName = "M1";
+String deviceName = "m1";
 
 
 //MQTT
@@ -27,7 +27,7 @@ const int initialBatchSize = 10;
 int batchSize = initialBatchSize;
 int batchNum = 0;
 
-float measurements[1000];
+float measurements[10000];
 
 char ssid[] = "BimseNet";
 char password[] = "vffj8352";
@@ -53,12 +53,12 @@ void setup() {
 
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
+  client.setBufferSize(512);
 }
 
 void loop() {
-  
   if (!client.connected()) {
-    reconnect();
+     reconnect();
   }
   client.loop();
 
@@ -73,10 +73,20 @@ void loop() {
   sensors.requestTemperatures(); 
   measurements[batchNum] = sensors.getTempCByIndex(0);
   batchNum = batchNum + 1;
+
+  customDelay(interval); //Amount of miliseconds between each meassurement
   
-  delay(interval); //Amount of miliseconds between each meassurement
   
-  
+}
+
+void customDelay(int delayMilli) {
+  int startTime = millis();
+  while (millis() > startTime + delayMilli) {
+     if (!client.connected()) {
+      reconnect();
+    }
+    client.loop();
+  }
 }
 
 void setSampleRate(float samp) {
@@ -88,10 +98,13 @@ void setSampleRate(float samp) {
 }
 
 void setBatchSize(int newBatchSize) {
+  Serial.print("Old batch size: ");
+  Serial.println(batchSize);
+  
   batchSize = newBatchSize;
   //TODO: Send current measurements
   Serial.print("New batch size: ");
-  Serial.println(newBatchSize);
+  Serial.println(batchSize);
   
   batchNum = 0;
 }
@@ -143,17 +156,28 @@ void callback(char* topic, byte* message, unsigned int length) {
     deserializeJson(doc, messageTemp);
 
     int newBatchSize;
-    int newSampleRate;
+    float newSampleRate;
 
     for (int i = 0; i < sizeof(doc); i++) {
-      if (doc[i] == deviceName) {
-        newBatchSize = doc[i]["sensors"][0]["settings"]["batchSize"];
-        newSampleRate = doc[i]["sensors"][0]["settings"]["samplingRate"];
+      if (doc[i]["name"] == deviceName) {
+        newBatchSize = (int) doc[i]["sensors"][0]["settings"]["batchSize"];
+        Serial.print("JSON batch size");
+        Serial.println(newBatchSize);
+        newSampleRate = (float) doc[i]["sensors"][0]["settings"]["samplingRate"];
       }
     }
+
+    if (newSampleRate != NULL) {
+      setSampleRate(newSampleRate);
+    }
+    if (newBatchSize != NULL) {
+      setBatchSize(newBatchSize);
+    }
     
-    setSampleRate(newSampleRate);
-    setBatchSize(newBatchSize);
+  }
+
+  if (String(topic) == "sensor/temperature") {
+    Serial.println(messageTemp);
   }
 }
 
