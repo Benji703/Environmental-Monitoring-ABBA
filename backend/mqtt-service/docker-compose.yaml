@@ -24,7 +24,13 @@ services:
         published: 9001
         protocol: tcp
         mode: host
+    networks:
+      - my-network
 
 volumes:
   data:
     name: "mqtt-broker-data"
+
+networks:
+  my-network:
+    driver: bridge

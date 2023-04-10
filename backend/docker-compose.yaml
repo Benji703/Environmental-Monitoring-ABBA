@@ -1,18 +1,46 @@
+---
+version: '3.7'
+
 services:
   mosquitto:
     image: eclipse-mosquitto:2
+    user: mosquitto
     volumes:
-      - ./mosquitto-service/config/:/mosquitto/config/
-      - ./mosquitto-service/log/:/mosquitto/log/
-      - data:/mosquitto/data/
+      - type: bind
+        source: ./mqtt-service/config/
+        target: /mosquitto/config/
+      - type: bind
+        source: ./mqtt-service/log/
+        target: /mosquitto/log/
+      - type: volume
+        source: data
+        target: /mosquitto/dataa/
     ports:
-      - 1883:1883
-      - 9001:9001
-  web-service:
-    build: ./flask-service
+      - target: 1883
+        published: 1883
+        protocol: tcp
+        mode: host
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: host
+    networks:
+      - my-network
+  config-publisher:
+    build: ./python-services/publishers
     ports:
-      - "5000:5000"
+      - "8080:8080"
     volumes:
       - .:/code
+    networks:
+      - my-network
+    depends_on:
+      - mosquitto
+
 volumes:
-  data: ~
+  data:
+    name: "mqtt-broker-data"
+
+networks:
+  my-network:
+    driver: bridge
