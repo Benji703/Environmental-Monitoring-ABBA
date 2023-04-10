@@ -27,7 +27,10 @@ import sdu.abba.environmentalMonitoring.Year
 class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		fsa.generateFile('configuration.json', serializeToJson(resource))
+		
+		val fileName = resource.URI.trimFileExtension().lastSegment();
+		
+		fsa.generateFile(fileName+'.json', serializeToJson(resource))
 	}
 		
 	def String serializeToJson(Resource resource) {
