@@ -49,8 +49,8 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 		
 	def String serialize(Machine machine)'''
 	{
-		name: "«machine.name»",
-		sensors: [
+		"name": "«machine.name»",
+		"sensors": [
 			«FOR sensor : machine.sensors SEPARATOR ','»
 				«sensor.serialize»
 			«ENDFOR»
@@ -60,8 +60,8 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 	
 	def String serialize(Sensor sensor)'''
 	{
-		name: "«sensor.name»",
-		settings: {
+		"name": "«sensor.name»",
+		"settings": {
 			«FOR setting : sensor.settings SEPARATOR ','»
 				«setting.serializeSetting»
 			«ENDFOR»
@@ -74,11 +74,11 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 	}
 	
 	def dispatch String serializeSetting(BatchSize batchSize)'''
-	batchSize: «batchSize.value»
+	"batchSize": «batchSize.value»
 	'''
 	
 	def dispatch String serializeSetting(SamplingRate samplingRate)'''
-	samplingRate: «samplingRate.convertToSeconds»
+	"samplingRate": «samplingRate.convertToSeconds»
 	'''
 	
 	def float convertToSeconds(SamplingRate samplingRate) {
