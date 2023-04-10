@@ -1,20 +1,30 @@
-import paho.mqtt.client as mqtt 
-#from random import uniform
+from flask import Flask, request, jsonify
+import paho.mqtt.client as mqtt
 import time
 import json
 
-#mqttBroker = "mqtt.eclipseprojects.io"
-#client.connect(mqttBroker)
-client = mqtt.Client("configuration_publisher")
-client.connect("mosquitto", 1883)
+app = Flask(__name__)
 
-with open('./resources/configuration.json','r') as f:
-    config = json.load(f)
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
-json_message = json.dumps(config)
+@app.route('/config', methods=['POST'])
+def publish():
+    client = mqtt.Client("configuration_publisher")
+    client.connect("mosquitto", 1883)
 
-while True:
-    #randNumber = uniform(20.0, 21.0)
+    config = request.json
+
+    #with open('./resources/configuration.json','r') as f:
+    #    config = json.load(f)
+
+    json_message = json.dumps(config)
     client.publish("sensor/config", json_message)
-    print("backend just published: " + str(json_message) + " to Topic: sensor/temperature")
-    time.sleep(1)
+    print("backend just published: " + str(json_message) + " to Topic: sensor/config")
+    
+    return jsonify({'status': 'success', 'message': 'Message published successfully!'})
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='8080', debug=True)
