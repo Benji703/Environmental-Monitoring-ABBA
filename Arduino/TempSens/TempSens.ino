@@ -8,9 +8,15 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+
 
 String deviceName = "m1";
 
+//For getting timestamp over internet
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
 
 //MQTT
 WiFiClient espClient;
@@ -27,7 +33,7 @@ const int initialBatchSize = 10;
 int batchSize = initialBatchSize;
 int batchNum = 0;
 
-float measurements[10000];
+float* measurements;
 
 char ssid[] = "BimseNet";
 char password[] = "vffj8352";
@@ -54,19 +60,29 @@ void setup() {
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
   client.setBufferSize(512);
+
+  timeClient.begin();
+
+  allocateArray();
 }
 
 void loop() {
+  
   if (!client.connected()) {
      reconnect();
   }
   client.loop();
 
+  timeClient.update();
+
+  int currentTime = timeClient.getEpochTime();
+  Serial.println(currentTime);
+  
+  
   if (batchNum > batchSize-1) {
     Serial.println("Send batch");
-    for (int i = 0; i < batchNum; i++) {
-      Serial.println(measurements[i]); //TODO: Send data over HTTP
-    }
+    sendBatch();
+    Serial.println("Batch sent!");
     setBatchSize(batchSize);
   }
   
@@ -92,25 +108,35 @@ void customDelay(int delayMilli) {
 void setSampleRate(float samp) {
   sampleRate = samp;
   interval = 1000/sampleRate;
-
-  Serial.print("New samplingrate: ");
-  Serial.println(samp);
 }
 
 void setBatchSize(int newBatchSize) {
-  Serial.print("Old batch size: ");
-  Serial.println(batchSize);
-  
   batchSize = newBatchSize;
   //TODO: Send current measurements
-  Serial.print("New batch size: ");
-  Serial.println(batchSize);
-  
   batchNum = 0;
 }
 
 void sendBatch() {
+
+  String myOutput = "{ \"name\": \"" + deviceName + "\", \"temperatures\": [";
   
+  for (int i = 0; i < batchNum; i++) {
+    if (i == batchNum-1) {
+      myOutput += (String)measurements[i];
+      break;
+    }
+    myOutput += (String)measurements[i] + ",";
+  }
+
+  myOutput += "] }";
+
+  //DynamicJsonDocument doc(1024);
+  //doc["temperature"] = sendMes;
+  //serializeJson(doc, myOutput);
+  const char* payload = myOutput.c_str();
+  client.publish("sensor/temperature", payload);
+
+  allocateArray();
 }
 
 
@@ -145,8 +171,6 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.print((char)message[i]);
     messageTemp += (char)message[i];
   }
-  Serial.println();
-
   // Feel free to add more if statements to control more GPIOs with MQTT
 
   // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
@@ -158,11 +182,11 @@ void callback(char* topic, byte* message, unsigned int length) {
     int newBatchSize;
     float newSampleRate;
 
+    sendBatch();
+
     for (int i = 0; i < sizeof(doc); i++) {
       if (doc[i]["name"] == deviceName) {
         newBatchSize = (int) doc[i]["sensors"][0]["settings"]["batchSize"];
-        Serial.print("JSON batch size");
-        Serial.println(newBatchSize);
         newSampleRate = (float) doc[i]["sensors"][0]["settings"]["samplingRate"];
       }
     }
@@ -173,6 +197,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     if (newBatchSize != NULL) {
       setBatchSize(newBatchSize);
     }
+
     
   }
 
@@ -181,17 +206,10 @@ void callback(char* topic, byte* message, unsigned int length) {
   }
 }
 
-void json() {
-  String jsonString = "[     {         \"name\": \"m1\",         \"sensors\": [             {                 \"name\": \"s1\",                 \"settings\": {                     \"samplingRate\": 100.0,                     \"batchSize\": 3000                 }             },             {                 \"name\": \"s2\",                 \"settings\": {                     \"samplingRate\": 3.3333333,                     \"batchSize\": 1000                 }             }         ]     },     {         \"name\": \"m2\",         \"sensors\": [             {                 \"name\": \"s1\",                 \"settings\": {                     \"samplingRate\": 1666.6666,                     \"batchSize\": 300                 }             }         ]     } ]";
-  
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, jsonString);
-
-  String nameM2 = doc[1]["name"];
-  float sampleM2S1 = doc[1]["sensors"][0]["settings"]["samplingRate"];
-  int batchM2S1 = doc[1]["sensors"][0]["settings"]["batchSize"];
-
-  Serial.println(nameM2);
-  Serial.println(sampleM2S1);
-  Serial.println(batchM2S1);
+void allocateArray() {
+  measurements = (float*) realloc(measurements, batchSize * sizeof(float));
+    if (measurements == NULL) {
+      Serial.println("Failed to allocate memory for measurements array");
+      return;
+    }
 }
