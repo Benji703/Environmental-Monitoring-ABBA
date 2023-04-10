@@ -15,6 +15,6 @@ json_message = json.dumps(config)
 
 while True:
     #randNumber = uniform(20.0, 21.0)
-    client.publish("sensor/temperature", json_message)
+    client.publish("sensor/config", json_message)
     print("backend just published: " + str(json_message) + " to Topic: sensor/temperature")
     time.sleep(1)
