@@ -7,10 +7,10 @@ services:
     user: mosquitto
     volumes:
       - type: bind
-        source: ./mqtt-service/config/
+        source: ./config/
         target: /mosquitto/config/
       - type: bind
-        source: ./mqtt-service/log/
+        source: ./log/
         target: /mosquitto/log/
       - type: volume
         source: data
@@ -24,27 +24,13 @@ services:
         published: 9001
         protocol: tcp
         mode: host
-  config-publisher:
-    build: ./python-services/publishers
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/code
-    depends_on:
-      - mosquitto
-  temperature-subsriber:
-    build: ./python-services/subscribers
-    ports:
-      - "8008:8008"
-    volumes:
-      - .:/code
-    depends_on:
-      - mosquitto
+    networks:
+      - my-network
 
 volumes:
   data:
     name: "mqtt-broker-data"
 
 networks:
-  default:
-    name: my-network
+  my-network:
+    driver: bridge
