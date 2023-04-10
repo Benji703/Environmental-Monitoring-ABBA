@@ -32,6 +32,14 @@ services:
       - .:/code
     depends_on:
       - mosquitto
+  temperature-subsriber:
+    build: ./python-services/subscribers
+    ports:
+      - "8008:8008"
+    volumes:
+      - .:/code
+    depends_on:
+      - mosquitto
 
 volumes:
   data:
