@@ -24,16 +24,12 @@ services:
         published: 9001
         protocol: tcp
         mode: host
-    networks:
-      - my-network
   config-publisher:
     build: ./python-services/publishers
     ports:
       - "8080:8080"
     volumes:
       - .:/code
-    networks:
-      - my-network
     depends_on:
       - mosquitto
 
@@ -42,5 +38,5 @@ volumes:
     name: "mqtt-broker-data"
 
 networks:
-  my-network:
-    driver: bridge
+  default:
+    name: my-network

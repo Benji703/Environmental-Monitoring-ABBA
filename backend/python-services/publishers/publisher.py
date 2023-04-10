@@ -6,7 +6,7 @@ import json
 #mqttBroker = "mqtt.eclipseprojects.io"
 #client.connect(mqttBroker)
 client = mqtt.Client("configuration_publisher")
-client.connect("127.0.0.1", 1883)
+client.connect("mosquitto", 1883)
 
 with open('./resources/configuration.json','r') as f:
     config = json.load(f)

@@ -12,7 +12,7 @@ def on_message(client, userdata, message):
 #mqttBroker = "mqtt.eclipseprojects.io"
 client = mqtt.Client("backend")
 #client.connect(mqttBroker)'
-client.connect("127.0.0.1", 1883)
+client.connect("mosquitto", 1883)
 
 client.loop_start()
 client.subscribe("sensor/temperature")
