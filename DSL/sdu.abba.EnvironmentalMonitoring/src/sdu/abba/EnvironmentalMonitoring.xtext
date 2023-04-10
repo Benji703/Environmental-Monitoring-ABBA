@@ -16,7 +16,7 @@ Sensor:
 ;
 
 Setting:
-	(SamplingRate | BatchSize)		// TODO: Only allow for one of each kind
+	(SamplingRate | BatchSize)
 ;
 
 SamplingRate:
