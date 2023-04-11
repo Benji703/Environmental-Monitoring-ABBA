@@ -21,10 +21,10 @@ def publish():
 
     json_message = json.dumps(config)
     client.publish("sensor/config", json_message)
-    print("backend just published: " + str(json_message) + " to Topic: sensor/config")
+    #print("backend just published: " + str(json_message) + " to Topic: sensor/config")
     
-    return jsonify({'status': 'success', 'message': 'Message published successfully!'})
-
+    return jsonify({'task': 'publish', 'topic': "sensor/config", 'status': 'success'})
+    # 'message': json_message,
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='8080', debug=True)
