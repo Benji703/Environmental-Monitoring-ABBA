@@ -6,23 +6,17 @@ package sdu.abba.tests
 import com.google.inject.Inject
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
-import org.eclipse.xtext.testing.util.ParseHelper
-import org.junit.jupiter.api.Assertions
+import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
-import sdu.abba.environmentalMonitoring.Model
-import sdu.abba.generator.EnvironmentalMonitoringGenerator
-import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 
 @ExtendWith(InjectionExtension)
 @InjectWith(EnvironmentalMonitoringInjectorProvider)
-class EnvironmentalMonitoringGenerationTest {
-	@Inject extension ParseHelper<Model> parseHelper		// Extension keyword makes the methods extension methods
-	@Inject extension EnvironmentalMonitoringGenerator		// Should actually not be used here. Use the one below
+class GenerationTest {
 	@Inject extension CompilationTestHelper					// The actual compilation logic
 	
 	@Test
-	def void loadModel() {
+	def void generationTest() {
 		
 		'''
 			machine MachineA
@@ -46,7 +40,7 @@ class EnvironmentalMonitoringGenerationTest {
 			]
 		''')
 		
-		// TODO: Validate this JSON. The integration test will validate of the fields are correct as this is an interface
+		// TODO: Validate this JSON. The test will validate of the fields are correct as this is an interface
 	}
 	
 	def boolean isValid(String json) {

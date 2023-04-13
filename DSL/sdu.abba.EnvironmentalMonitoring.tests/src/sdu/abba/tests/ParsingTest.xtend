@@ -22,7 +22,7 @@ import sdu.abba.environmentalMonitoring.Unit
 
 @ExtendWith(InjectionExtension)
 @InjectWith(EnvironmentalMonitoringInjectorProvider)
-class EnvironmentalMonitoringParsingTest {
+class ParsingTest {
 	@Inject ParseHelper<Model> parseHelper
 	
 	@Test
