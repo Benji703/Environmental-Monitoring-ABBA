@@ -23,17 +23,17 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char* mqtt_server = "192.168.204.26";
 
+boolean isConfigured = false;
+
 // GPIO where the DS18B20 is connected to
 const int oneWireBus = 33;  
-float sampleRate = 1; //Samples per second
-float interval = 1000/sampleRate;
+float sampleRate = 0; //Samples per second
+float interval = 0;
 
-const int initialBatchSize = 10;
-
-int batchSize = initialBatchSize;
+int batchSize = 0;
 int batchNum = 0;
 
-float* measurements;
+float *measurements;
 
 char ssid[] = "BimseNet";
 char password[] = "vffj8352";
@@ -66,33 +66,40 @@ void setup() {
   allocateArray();
 }
 
-void loop() {
-  
-  if (!client.connected()) {
-     reconnect();
-  }
-  client.loop();
 
+
+void loop() {
+  if (isConfigured) {
+    checkMQTT();
+    if ( batchNum > batchSize-1) {
+      Serial.println("Sending batch");
+      sendBatch();
+      Serial.println("Batch sent!");
+    }
+    measureTemp();
+  } else {
+    checkMQTT();
+  }
+}
+
+void measureTemp() {
   timeClient.update();
 
   int currentTime = timeClient.getEpochTime();
   Serial.println(currentTime);
-  
-  
-  if (batchNum > batchSize-1) {
-    Serial.println("Send batch");
-    sendBatch();
-    Serial.println("Batch sent!");
-    setBatchSize(batchSize);
-  }
   
   sensors.requestTemperatures(); 
   measurements[batchNum] = sensors.getTempCByIndex(0);
   batchNum = batchNum + 1;
 
   customDelay(interval); //Amount of miliseconds between each meassurement
-  
-  
+}
+
+void checkMQTT() {
+  if (!client.connected()) {
+     reconnect();
+  }
+  client.loop();
 }
 
 void customDelay(int delayMilli) {
@@ -135,8 +142,9 @@ void sendBatch() {
   //serializeJson(doc, myOutput);
   const char* payload = myOutput.c_str();
   client.publish("sensor/temperature", payload);
-
+  
   allocateArray();
+  batchNum = 0;
 }
 
 
@@ -198,7 +206,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       setBatchSize(newBatchSize);
     }
 
-    
+    isConfigured = true; 
   }
 
   if (String(topic) == "sensor/temperature") {
@@ -207,7 +215,7 @@ void callback(char* topic, byte* message, unsigned int length) {
 }
 
 void allocateArray() {
-  measurements = (float*) realloc(measurements, batchSize * sizeof(float));
+   measurements = (float *) malloc(batchSize * sizeof(float));
     if (measurements == NULL) {
       Serial.println("Failed to allocate memory for measurements array");
       return;
