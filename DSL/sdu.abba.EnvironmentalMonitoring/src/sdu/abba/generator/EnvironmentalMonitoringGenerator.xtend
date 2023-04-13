@@ -3,6 +3,7 @@
  */
 package sdu.abba.generator
 
+import java.net.ConnectException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -16,13 +17,10 @@ import sdu.abba.environmentalMonitoring.Day
 import sdu.abba.environmentalMonitoring.Hour
 import sdu.abba.environmentalMonitoring.Machine
 import sdu.abba.environmentalMonitoring.Minute
-import sdu.abba.environmentalMonitoring.Month
 import sdu.abba.environmentalMonitoring.SamplingRate
 import sdu.abba.environmentalMonitoring.Second
 import sdu.abba.environmentalMonitoring.Sensor
 import sdu.abba.environmentalMonitoring.Setting
-import sdu.abba.environmentalMonitoring.Year
-import java.net.ConnectException
 
 /**
  * Generates code from your model files on save.
@@ -125,8 +123,6 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 			Minute: 	return samplingRate.value / 60f
 			Hour: 		return samplingRate.value / (60f*60)
 			Day: 		return samplingRate.value / (60f*60*24)
-			Month: 		return samplingRate.value / (60f*60*24*30) 	// TODO: This has varying days in the months...
-			Year: 		return samplingRate.value / (60f*60*24*365)	// TODO: What about leap year
 			default: 	throw new UnsupportedOperationException("Unit type is not supported")
 		}
 	}
