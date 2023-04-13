@@ -50,6 +50,8 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 		}
 	}
 	
+	public static String DUPLICATE_MACHINE_NAMES = "duplicateMachineNames";
+	
 	
 	@Check
 	public void checkMachineNamesAreNotDuplicated(Model model) {
@@ -61,7 +63,7 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 			Machine machine = machines.get(i);
 			
 			if (names.contains(machine.getName())) {
-				error("This machine name is already in use", EnvironmentalMonitoringPackage.Literals.MODEL__MACHINES, i);
+				error("This machine name is already in use", EnvironmentalMonitoringPackage.Literals.MODEL__MACHINES, i, DUPLICATE_MACHINE_NAMES);
 			}
 			
 			names.add(machine.getName());

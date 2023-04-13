@@ -3,21 +3,26 @@
  */
 package sdu.abba.generator
 
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import sdu.abba.environmentalMonitoring.Machine
-import sdu.abba.environmentalMonitoring.Sensor
-import sdu.abba.environmentalMonitoring.Setting
 import sdu.abba.environmentalMonitoring.BatchSize
+import sdu.abba.environmentalMonitoring.Day
+import sdu.abba.environmentalMonitoring.Hour
+import sdu.abba.environmentalMonitoring.Machine
+import sdu.abba.environmentalMonitoring.Minute
+import sdu.abba.environmentalMonitoring.Month
 import sdu.abba.environmentalMonitoring.SamplingRate
 import sdu.abba.environmentalMonitoring.Second
-import sdu.abba.environmentalMonitoring.Minute
-import sdu.abba.environmentalMonitoring.Hour
-import sdu.abba.environmentalMonitoring.Day
-import sdu.abba.environmentalMonitoring.Month
+import sdu.abba.environmentalMonitoring.Sensor
+import sdu.abba.environmentalMonitoring.Setting
 import sdu.abba.environmentalMonitoring.Year
+import java.net.ConnectException
 
 /**
  * Generates code from your model files on save.
@@ -25,12 +30,40 @@ import sdu.abba.environmentalMonitoring.Year
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class EnvironmentalMonitoringGenerator extends AbstractGenerator {
+	
+	val httpClient = HttpClient.newHttpClient();
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		
 		val fileName = resource.URI.trimFileExtension().lastSegment();
+		val json = serializeToJson(resource)
 		
-		fsa.generateFile(fileName+'.json', serializeToJson(resource))
+		fsa.generateFile(fileName+'.json', json)
+		
+		// TODO: Move this to a dedicated button in the IDE interface
+		val request = HttpRequest.newBuilder()
+		.uri(new URI("http://localhost:8080/config"))
+		.header("content-type", "application/json")
+		.POST(HttpRequest.BodyPublishers.ofString(
+			json
+		))
+		.build();
+	
+		try {
+			
+			val response = httpClient.send(request, BodyHandlers.ofString())
+		
+			if (response.statusCode != 200) {
+				System.out.println(response.body)
+				throw new Exception("Not 200 status code was received");
+			}
+			
+		}
+		catch (ConnectException e) {
+			System.out.println("Could not connect to server");
+			// TODO: Show pop up window that explains that there is no connection
+		}
+		
 	}
 		
 	def String serializeToJson(Resource resource) {
