@@ -23,12 +23,6 @@ class EnvironmentalMonitoringGenerationTest {
 	
 	@Test
 	def void loadModel() {
-		val result = '''
-			machine MachineA
-			  sensor SensorA
-			    sampling rate = 5/s
-		'''.parse
-		Assertions.assertNotNull(result)
 		
 		'''
 			machine MachineA
@@ -51,9 +45,6 @@ class EnvironmentalMonitoringGenerationTest {
 				}
 			]
 		''')
-		
-		val json = result.machines.get(0).serialize
-		System.out.println(json)
 		
 		// TODO: Validate this JSON. The integration test will validate of the fields are correct as this is an interface
 	}
