@@ -14,4 +14,4 @@ machine MachineA
         sampling rate 	= 5/s
         batch size 		= 100
 ```
-5. Hit `CTRL+S` or `⌘+S` to generate the resulting JSON document. This is located in the `src-gen` folder.
+5. Hit `CTRL+S` or `⌘+S` to generate the resulting JSON document. These are located in the `src-gen` folder.
