@@ -5,6 +5,7 @@ There are two sections:
 - [Setup](#setup)
 - [Ready to run](#ready-to-run)
 
+## Setup
 
 ### Install Libraries
 Navigate to **Manage Libraries**: 
