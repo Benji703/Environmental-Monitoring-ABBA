@@ -9,11 +9,54 @@ import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
+import org.eclipse.xtext.testing.util.ParseHelper
+import sdu.abba.environmentalMonitoring.Model
+import static extension sdu.abba.generator.EnvironmentalMonitoringGenerator.assignVariables
+import org.junit.jupiter.api.Assertions
 
 @ExtendWith(InjectionExtension)
 @InjectWith(EnvironmentalMonitoringInjectorProvider)
 class GenerationTest {
 	@Inject extension CompilationTestHelper					// The actual compilation logic
+	@Inject extension ParseHelper<Model> parseHelper
+	
+	@Test
+	def void variableAssignments() {
+		val result =
+		'''
+			var v1 = 200
+			var v2 = 200 + 200
+		'''
+		.parse
+		
+		val variables = result.assignVariables
+		
+		val v1 = variables.get("v1")
+		Assertions.assertEquals(200, v1, "v1 should be 200")
+		
+		val v2 = variables.get("v2")
+		Assertions.assertEquals(400, v2, "v1 should be 400")
+		
+	}
+	
+	@Test
+	def void variableReference() {
+		val result =
+		'''
+			var v1 = 200
+			var v2 = v1
+		'''
+		.parse
+		
+		val variables = result.assignVariables
+		
+		val v1 = variables.get("v1")
+		Assertions.assertEquals(200, v1, "v1 should be 200")
+		
+		val v2 = variables.get("v2")
+		Assertions.assertEquals(v1, v2, "v1 should be v1 (200)")
+		
+	}
 	
 	@Test
 	def void generationTest() {

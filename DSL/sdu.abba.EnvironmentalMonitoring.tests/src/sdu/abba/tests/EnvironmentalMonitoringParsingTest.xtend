@@ -19,6 +19,7 @@ import sdu.abba.environmentalMonitoring.SamplingRate
 import sdu.abba.environmentalMonitoring.Second
 import sdu.abba.environmentalMonitoring.Sensor
 import sdu.abba.environmentalMonitoring.Unit
+import sdu.abba.generator.EnvironmentalMonitoringGenerator
 
 @ExtendWith(InjectionExtension)
 @InjectWith(EnvironmentalMonitoringInjectorProvider)
@@ -81,9 +82,11 @@ class EnvironmentalMonitoringParsingTest {
 		''')
 		Assertions.assertNotNull(result)
 		
+		
+		
 		val batchSizes = result.machines.get(0).sensors.get(0).settings.filter(BatchSize)
 		Assertions.assertEquals(1, 		batchSizes.size, 			"Incorrect number of batch sizes")
-		Assertions.assertEquals(300, 	batchSizes.get(0).value, 	"Incorrect batch size value")
+		Assertions.assertEquals(300, 	EnvironmentalMonitoringGenerator.compute(batchSizes.get(0).value), 	"Incorrect batch size value")
 	}
 	
 	@Test
@@ -97,7 +100,7 @@ class EnvironmentalMonitoringParsingTest {
 		
 		val sampleRates = result.machines.get(0).sensors.get(0).settings.filter(SamplingRate)
 		Assertions.assertEquals(1, 		sampleRates.size, 			"Incorrect number of sample rates")
-		Assertions.assertEquals(100, 	sampleRates.get(0).value, 	"Incorrect sample rate value")
+		Assertions.assertEquals(100, 	EnvironmentalMonitoringGenerator.compute(sampleRates.get(0).value), 	"Incorrect sample rate value")
 	}
 	
 	@Test
@@ -115,11 +118,11 @@ class EnvironmentalMonitoringParsingTest {
 		
 		val sampleRates = settings.filter(SamplingRate)
 		Assertions.assertEquals(1, 		sampleRates.size, 			"Incorrect number of sample rates")
-		Assertions.assertEquals(100, 	sampleRates.get(0).value, 	"Incorrect sample rate value")
+		Assertions.assertEquals(100, 	EnvironmentalMonitoringGenerator.compute(sampleRates.get(0).value), 	"Incorrect sample rate value")
 		
 		val batchSizes = settings.filter(BatchSize)
 		Assertions.assertEquals(1, 		batchSizes.size, 			"Incorrect number of batch sizes")
-		Assertions.assertEquals(300, 	batchSizes.get(0).value, 	"Incorrect batch size value")
+		Assertions.assertEquals(300, 	EnvironmentalMonitoringGenerator.compute(batchSizes.get(0).value), 	"Incorrect batch size value")
 	}
 	
 	@Test
@@ -160,4 +163,20 @@ class EnvironmentalMonitoringParsingTest {
 	def static Unit getSampleRateUnit(Sensor sensor) {
 		return sensor.settings.filter(SamplingRate).get(0).unit
 	}
+	
+	@Test
+	def void variableAssignments() {
+		val result = parseHelper.parse('''
+			var v1 = 200
+			var v2 = 200
+		''')
+		Assertions.assertNotNull(result)
+		
+		val variable1 = result.variables.get(0)
+		val variable2 = result.variables.get(0)
+		
+		Assertions.assertEquals("v1", variable1.name, "The name differs")
+		Assertions.assertEquals("v1", variable2.name, "The name differs")
+	}
+	
 }

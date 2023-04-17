@@ -3,7 +3,9 @@ grammar sdu.abba.EnvironmentalMonitoring with org.eclipse.xtext.common.Terminals
 generate environmentalMonitoring "http://www.abba.sdu/EnvironmentalMonitoring"
 
 Model:
-	machines+=Machine*;
+	variables+=VariableBinding*
+	machines+=Machine*
+;
 
 Machine:
 	'machine' name=ID
@@ -20,11 +22,12 @@ Setting:
 ;
 
 SamplingRate:
-	'sampling' 'rate' '=' value=INT ('/'|'per') unit=Unit
+	'sampling' 'rate' '=' value=Factor ('/'|'per') unit=Unit	// Allows for expression when they are inside ( )
 ;
 
 BatchSize:
-	'batch' 'size' '=' value=INT
+	'batch' 'size' '=' value=Expression
+	
 ;
 
 Unit returns Unit:
@@ -32,4 +35,28 @@ Unit returns Unit:
 	{Minute} ('m'|'month') | 
 	{Hour} ('h'|'hour') | 
 	{Day} ('d'|'day')
+;
+
+Expression returns Expression:
+	Term (({Plus.left=current} '+' | {Subtraction.left=current} '-') right=Term)*
+;
+
+Term returns Expression:
+	Factor (({Multiplication.left=current} '*' | {Division.left=current} '/') right=Factor)*
+;
+
+Factor returns Expression:
+	Number | '(' Expression ')' | VariableBinding | VariableReference
+;
+
+Number:
+	value=INT
+;
+
+VariableBinding:
+	'var' name=ID '=' expression=Expression
+;
+
+VariableReference returns Expression:
+	{VariableReference} ref=[VariableBinding|ID]
 ;
