@@ -12,7 +12,6 @@
 #include <WiFiUdp.h>
 
 
-String deviceName = "m1";
 
 //For getting timestamp over internet
 WiFiUDP ntpUDP;
@@ -22,6 +21,7 @@ NTPClient timeClient(ntpUDP);
 WiFiClient espClient;
 PubSubClient client(espClient);
 const char* mqtt_server = "192.168.204.26";
+const char* client_id = "m1";
 
 boolean isConfigured = false;
 
@@ -33,7 +33,9 @@ float interval = 0;
 int batchSize = 0;
 int batchNum = 0;
 
-float measurements[10000];
+const int arraySize = 1000;
+float measurements[arraySize];
+unsigned long timeArr[arraySize];
 
 char ssid[] = "BimseNet";
 char password[] = "vffj8352";
@@ -85,11 +87,11 @@ void loop() {
 void measureTemp() {
   timeClient.update();
 
-  int currentTime = timeClient.getEpochTime();
-  //Serial.println(currentTime);
+  unsigned long currentTime = timeClient.getEpochTime();
   
   sensors.requestTemperatures(); 
   measurements[batchNum] = sensors.getTempCByIndex(0);
+  timeArr[batchNum] = currentTime;
   batchNum = batchNum + 1;
 
   customDelay(interval); //Amount of miliseconds between each meassurement
@@ -125,7 +127,7 @@ void setBatchSize(int newBatchSize) {
 
 void sendBatch() {
 
-  String myOutput = "{ \"name\": \"" + deviceName + "\", \"temperatures\": [";
+  String myOutput = "{ \"machine_id\": \"" + (String)client_id + "\", \"temperatures\": [";
   
   for (int i = 0; i < batchNum; i++) {
     if (i == batchNum-1) {
@@ -134,7 +136,17 @@ void sendBatch() {
     }
     myOutput += (String)measurements[i] + ",";
   }
+  
+  myOutput += "], \"time_stamps\": [";
 
+  for (int i = 0; i < batchNum; i++) {
+    if (i == batchNum-1) {
+      myOutput += (String)timeArr[i];
+      break;
+    }
+    myOutput += (String)timeArr[i] + ",";
+  }
+  
   myOutput += "] }";
 
   //DynamicJsonDocument doc(1024);
@@ -153,7 +165,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("ESP8266Client")) {
+    if (client.connect(client_id)) {
       Serial.println("connected");
       // Subscribe
       client.subscribe("sensor/config");
@@ -195,7 +207,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     }
 
     for (int i = 0; i < sizeof(doc); i++) {
-      if (doc[i]["name"] == deviceName) {
+      if (doc[i]["name"] == client_id) {
         newBatchSize = (int) doc[i]["sensors"][0]["settings"]["batchSize"];
         newSampleRate = (float) doc[i]["sensors"][0]["settings"]["samplingRate"];
       }
