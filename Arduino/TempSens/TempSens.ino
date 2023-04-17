@@ -33,7 +33,7 @@ float interval = 0;
 int batchSize = 0;
 int batchNum = 0;
 
-float *measurements;
+float measurements[10000];
 
 char ssid[] = "BimseNet";
 char password[] = "vffj8352";
@@ -63,7 +63,7 @@ void setup() {
 
   timeClient.begin();
 
-  allocateArray();
+  //allocateArray();
 }
 
 
@@ -86,7 +86,7 @@ void measureTemp() {
   timeClient.update();
 
   int currentTime = timeClient.getEpochTime();
-  Serial.println(currentTime);
+  //Serial.println(currentTime);
   
   sensors.requestTemperatures(); 
   measurements[batchNum] = sensors.getTempCByIndex(0);
@@ -143,7 +143,7 @@ void sendBatch() {
   const char* payload = myOutput.c_str();
   client.publish("sensor/temperature", payload);
   
-  allocateArray();
+  //allocateArray();
   batchNum = 0;
 }
 
@@ -190,7 +190,9 @@ void callback(char* topic, byte* message, unsigned int length) {
     int newBatchSize;
     float newSampleRate;
 
-    sendBatch();
+    if (batchNum > 0) {
+      sendBatch(); 
+    }
 
     for (int i = 0; i < sizeof(doc); i++) {
       if (doc[i]["name"] == deviceName) {
@@ -214,6 +216,7 @@ void callback(char* topic, byte* message, unsigned int length) {
   }
 }
 
+/*
 void allocateArray() {
    measurements = (float *) malloc(batchSize * sizeof(float));
     if (measurements == NULL) {
@@ -221,3 +224,4 @@ void allocateArray() {
       return;
     }
 }
+*/
