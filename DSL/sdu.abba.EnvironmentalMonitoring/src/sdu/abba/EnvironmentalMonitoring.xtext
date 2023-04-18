@@ -3,18 +3,25 @@ grammar sdu.abba.EnvironmentalMonitoring with org.eclipse.xtext.common.Terminals
 generate environmentalMonitoring "http://www.abba.sdu/EnvironmentalMonitoring"
 
 Model:
-	variables+=VariableBinding*
+	variables+=Binding*
 	machines+=Machine*
 ;
 
 Machine:
 	'machine' name=ID
-		sensors+=Sensor*
+		sensors+=(Sensor)*
 ;
 
 Sensor:
-	'sensor' name=ID
-		settings+=(Setting)*
+	'sensor' (SensorInstantiation | SensorReference)
+;
+
+SensorInstantiation:
+	name=ID inner=SensorInstantiationInner
+;
+
+SensorInstantiationInner:
+	{SensorInstantiationInner} settings+=(Setting)+		// TODO: Make validation that ensures both settings are set
 ;
 
 Setting:
@@ -53,10 +60,23 @@ Number:
 	value=INT
 ;
 
+Binding:
+	VariableBinding | SensorBinding
+;
+
 VariableBinding:
-	'var' name=ID '=' expression=Expression
+	'var' name=ID '=' (expression=Expression)
+;
+
+SensorBinding:
+	'var' 'sensor' name=ID '=' (sensor=SensorInstantiationInner)
 ;
 
 VariableReference returns Expression:
-	{VariableReference} ref=[VariableBinding|ID]
+	
+	{VariableReference} ref=[VariableBinding]
+;
+
+SensorReference:
+	'use' ref=[SensorBinding]
 ;

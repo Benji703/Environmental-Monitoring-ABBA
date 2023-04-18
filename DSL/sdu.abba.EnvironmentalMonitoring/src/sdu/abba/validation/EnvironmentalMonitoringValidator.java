@@ -13,6 +13,7 @@ import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
 import sdu.abba.environmentalMonitoring.Machine;
 import sdu.abba.environmentalMonitoring.Model;
 import sdu.abba.environmentalMonitoring.Sensor;
+import sdu.abba.environmentalMonitoring.SensorInstantiationInner;
 import sdu.abba.environmentalMonitoring.Setting;
 
 /**
@@ -23,11 +24,11 @@ import sdu.abba.environmentalMonitoring.Setting;
 public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonitoringValidator {
 	
 	@Check
-	public void checkSettingsAreNoteDuplicated(Sensor sensor) {
+	public void checkSettingsAreNoteDuplicated(SensorInstantiationInner sensorInner) {
 		
 		HashMap<String, Integer> settingsCount = new HashMap<>();
 		
-		for (Setting setting : sensor.getSettings()) {
+		for (Setting setting : sensorInner.getSettings()) {
 			
 			String className = setting.getClass().toString();
 			
@@ -37,7 +38,7 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 			settingsCount.replace(className, count);
 		}
 		
-		EList<Setting> settings = sensor.getSettings();
+		EList<Setting> settings = sensorInner.getSettings();
 		for (int i = 0; i < settings.size(); i++) {
 			Setting setting = settings.get(i);
 			
@@ -45,7 +46,7 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 			Integer count = settingsCount.get(className);
 			
 			if (count > 1) {
-				error("'"+className + "' can only be configured once", EnvironmentalMonitoringPackage.Literals.SENSOR__SETTINGS, i);
+				error("'"+className + "' can only be configured once", EnvironmentalMonitoringPackage.Literals.SENSOR_INSTANTIATION_INNER__SETTINGS, i);
 			}
 		}
 	}
@@ -73,18 +74,20 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 	@Check
 	public void checkSensorNamesAreNotDuplicated(Machine machine) {
 		
-		HashSet<String> names = new HashSet<>();
+		// TODO: Make this work again with sensor variables
 		
-		EList<Sensor> sensors = machine.getSensors();
-		for (int i = 0; i < sensors.size(); i++) {
-			Sensor sensor = sensors.get(i);
-			
-			if (names.contains(sensor.getName())) {
-				error("This sensor name is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
-			}
-			
-			names.add(sensor.getName());
-		}
+//		HashSet<String> names = new HashSet<>();
+//		
+//		EList<Sensor> sensors = machine.getSensors();
+//		for (int i = 0; i < sensors.size(); i++) {
+//			Sensor sensor = sensors.get(i);
+//			
+//			if (names.contains(sensor.getName())) {
+//				error("This sensor name is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
+//			}
+//			
+//			names.add(sensor.getName());
+//		}
 	}
 	
 }

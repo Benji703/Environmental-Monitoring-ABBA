@@ -25,6 +25,7 @@ import sdu.abba.generator.EnvironmentalMonitoringGenerator
 @InjectWith(EnvironmentalMonitoringInjectorProvider)
 class EnvironmentalMonitoringParsingTest {
 	@Inject ParseHelper<Model> parseHelper
+	@Inject extension EnvironmentalMonitoringGenerator
 	
 	@Test
 	def void loadModel() {
@@ -160,7 +161,7 @@ class EnvironmentalMonitoringParsingTest {
 		Assertions.assertInstanceOf(Day, sensors.get(3).sampleRateUnit, "Not an instance of day")
 	}
 	
-	def static Unit getSampleRateUnit(Sensor sensor) {
+	def Unit getSampleRateUnit(Sensor sensor) {
 		return sensor.settings.filter(SamplingRate).get(0).unit
 	}
 	

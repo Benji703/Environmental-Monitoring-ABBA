@@ -33,6 +33,9 @@ import sdu.abba.environmentalMonitoring.Setting
 import sdu.abba.environmentalMonitoring.Subtraction
 import sdu.abba.environmentalMonitoring.VariableBinding
 import sdu.abba.environmentalMonitoring.VariableReference
+import sdu.abba.environmentalMonitoring.SensorInstantiation
+import sdu.abba.environmentalMonitoring.SensorReference
+import org.eclipse.emf.common.util.EList
 
 /**
  * Generates code from your model files on save.
@@ -48,7 +51,7 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 		
 		val fileName = resource.URI.trimFileExtension().lastSegment();
 		
-		val model = resource.allContents
+		val model = resource.contents
 			.filter(Model)
 			.toList
 			.get(0)
@@ -108,6 +111,7 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 		variableMap.clear
 		
 		model.variables
+			.filter(VariableBinding)
 			.forEach[assign]
 			
 		return variableMap
@@ -141,6 +145,23 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 		}
 	}
 	'''
+		
+	def EList<Setting> settings(Sensor sensor) {
+		
+		switch (sensor) {
+			SensorInstantiation: sensor.inner.settings
+			SensorReference: sensor.ref.sensor.settings
+		}
+	}
+		
+	def String name(Sensor sensor) {
+		
+		switch (sensor) {
+			SensorInstantiation: sensor.name
+			SensorReference: sensor.ref.name
+		}
+		
+	}
 	
 	def dispatch String serializeSetting(Setting setting) {
 		throw new UnsupportedOperationException("We don't handle abstract settings")
