@@ -139,12 +139,22 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 	{
 		"name": "«sensor.name»",
 		"settings": {
+			"pin": «sensor.pin»,
 			«FOR setting : sensor.settings SEPARATOR ','»
 				«setting.serializeSetting»
 			«ENDFOR»
 		}
 	}
 	'''
+		
+	def int pin(Sensor sensor) {
+		
+		switch (sensor) {
+			SensorInstantiation: sensor.inner.pin.compute
+			SensorReference: sensor.ref.sensor.pin.compute
+			default: 0
+		}
+	}
 		
 	def EList<Setting> settings(Sensor sensor) {
 		
@@ -186,28 +196,10 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 			default: 	throw new UnsupportedOperationException("Unit type is not supported")
 		}
 	}
-//	
-//	def static makeAssignment(VariableBinding assignment) {
-//		val value = assignment.expression.computeExp()
-//		variables.put(assignment.name, value)
-//	}
-	
 	
 	def static dispatch int compute(Number number) {
 		return number.value
 	}
-//	
-//	def static dispatch int computeExp(VariableUse varRef) {
-//		val binding = varRef.ref
-//		var name = ""
-//		
-//		switch binding {
-//			VariableBinding: 	name = binding.name
-//			LetBinding:			name = binding.name
-//		}
-//		
-//		return variables.get(name)
-//	}
 	
 	def static dispatch int compute(Expression expression) {
 		throw new InvalidObjectException("This type of expression is not known"); // TODO: Make this more proper

@@ -21,7 +21,9 @@ SensorInstantiation:
 ;
 
 SensorInstantiationInner:
-	{SensorInstantiationInner} settings+=(Setting)+		// TODO: Make validation that ensures both settings are set
+	{SensorInstantiationInner} 
+	'pin' '=' pin=Expression
+	settings+=(Setting)+		// TODO: Make validation that ensures both settings are set
 ;
 
 Setting:
