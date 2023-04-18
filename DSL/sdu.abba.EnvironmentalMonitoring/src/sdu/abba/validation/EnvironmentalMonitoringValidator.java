@@ -9,11 +9,13 @@ import java.util.HashSet;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
 
+import sdu.abba.environmentalMonitoring.BatchSize;
 import sdu.abba.environmentalMonitoring.Binding;
 import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
 import sdu.abba.environmentalMonitoring.Expression;
 import sdu.abba.environmentalMonitoring.Machine;
 import sdu.abba.environmentalMonitoring.Model;
+import sdu.abba.environmentalMonitoring.SamplingRate;
 import sdu.abba.environmentalMonitoring.Sensor;
 import sdu.abba.environmentalMonitoring.SensorInstantiation;
 import sdu.abba.environmentalMonitoring.SensorInstantiationInner;
@@ -166,6 +168,37 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 		}
 		
 		return EnvironmentalMonitoringGenerator.compute(expression);	
+	}
+	
+	@Check
+	public void checkBothSensorSettingsAreSet(SensorInstantiationInner sensorInner) {
+		
+		boolean isBatchSizeSet 		= false;
+		boolean isSamplingRateSet 	= false;
+		
+		EList<Setting> settings = sensorInner.getSettings();
+		for (int i = 0; i < settings.size(); i++) {
+			Setting setting = settings.get(i);
+			
+			if (setting instanceof BatchSize) {
+				isBatchSizeSet = true;
+				continue;
+			}
+			
+			if (setting instanceof SamplingRate) {
+				isSamplingRateSet = true;
+				continue;
+			}
+		}
+		
+		if (!isBatchSizeSet) {
+			error("The batch size is missing", EnvironmentalMonitoringPackage.Literals.SENSOR_INSTANTIATION_INNER__SETTINGS);
+		}
+		
+		if (!isSamplingRateSet) {
+			error("The sampling rate is missing", EnvironmentalMonitoringPackage.Literals.SENSOR_INSTANTIATION_INNER__SETTINGS);
+		}
+		
 	}
 	
 }

@@ -197,6 +197,11 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 		}
 	}
 	
+	def static dispatch int compute(Void v) {
+		return 1	// If null then make it 1 as the input is invalid either way
+					// Zero cannot be used as it would create division by zero errors
+	}
+	
 	def static dispatch int compute(Number number) {
 		return number.value
 	}
