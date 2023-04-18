@@ -13,7 +13,9 @@ import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
 import sdu.abba.environmentalMonitoring.Machine;
 import sdu.abba.environmentalMonitoring.Model;
 import sdu.abba.environmentalMonitoring.Sensor;
+import sdu.abba.environmentalMonitoring.SensorInstantiation;
 import sdu.abba.environmentalMonitoring.SensorInstantiationInner;
+import sdu.abba.environmentalMonitoring.SensorReference;
 import sdu.abba.environmentalMonitoring.Setting;
 
 /**
@@ -74,20 +76,36 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 	@Check
 	public void checkSensorNamesAreNotDuplicated(Machine machine) {
 		
-		// TODO: Make this work again with sensor variables
+		HashSet<String> names = new HashSet<>();
 		
-//		HashSet<String> names = new HashSet<>();
-//		
-//		EList<Sensor> sensors = machine.getSensors();
-//		for (int i = 0; i < sensors.size(); i++) {
-//			Sensor sensor = sensors.get(i);
-//			
-//			if (names.contains(sensor.getName())) {
-//				error("This sensor name is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
-//			}
-//			
-//			names.add(sensor.getName());
-//		}
+		EList<Sensor> sensors = machine.getSensors();
+		for (int i = 0; i < sensors.size(); i++) {
+			Sensor sensor = sensors.get(i);
+			
+			if (names.contains(getName(sensor))) {
+				error("This sensor name is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
+			}
+			
+			names.add(getName(sensor));
+		}
+		
+	}
+	
+	private String getName(Sensor sensor) {
+		
+		if (sensor instanceof SensorInstantiation) {
+			SensorInstantiation sensorInstantiation = (SensorInstantiation) sensor;
+			return sensorInstantiation.getName();
+			
+		}
+		
+		if (sensor instanceof SensorReference) {
+			SensorReference sensorReference = (SensorReference) sensor;
+			return sensorReference.getRef().getName();
+		}
+		
+		throw new UnsupportedOperationException("The type of sensor is not recognized");
+		
 	}
 	
 }
