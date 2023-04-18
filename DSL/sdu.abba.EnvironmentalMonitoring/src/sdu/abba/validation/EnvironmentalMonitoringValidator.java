@@ -11,6 +11,7 @@ import org.eclipse.xtext.validation.Check;
 
 import sdu.abba.environmentalMonitoring.Binding;
 import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
+import sdu.abba.environmentalMonitoring.Expression;
 import sdu.abba.environmentalMonitoring.Machine;
 import sdu.abba.environmentalMonitoring.Model;
 import sdu.abba.environmentalMonitoring.Sensor;
@@ -18,7 +19,7 @@ import sdu.abba.environmentalMonitoring.SensorInstantiation;
 import sdu.abba.environmentalMonitoring.SensorInstantiationInner;
 import sdu.abba.environmentalMonitoring.SensorReference;
 import sdu.abba.environmentalMonitoring.Setting;
-import sdu.abba.environmentalMonitoring.VariableBinding;
+import sdu.abba.generator.EnvironmentalMonitoringGenerator;
 
 /**
  * This class contains custom validation rules. 
@@ -93,7 +94,7 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 		
 	}
 	
-	private String getName(Sensor sensor) {
+	private String getName(Sensor sensor) {		// TODO: Can actually use the generated Java code from the generator
 		
 		if (sensor instanceof SensorInstantiation) {
 			SensorInstantiation sensorInstantiation = (SensorInstantiation) sensor;
@@ -126,6 +127,45 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 			names.add(binding.getName());
 		}
 		
+	}
+	
+	@Check
+	public void checkPinsAreNotDuplicated(Machine machine) {
+		
+		HashSet<Integer> pins = new HashSet<>();
+		
+		EList<Sensor> sensors = machine.getSensors();
+		for (int i = 0; i < sensors.size(); i++) {
+			Sensor sensor = sensors.get(i);
+			
+			if (pins.contains(getPin(sensor))) {
+				error("The pin is already in use", EnvironmentalMonitoringPackage.Literals.MACHINE__SENSORS, i);
+			}
+			
+			pins.add(getPin(sensor));
+		}
+		
+	}
+
+	private Integer getPin(Sensor sensor) {
+		
+		Expression expression = null;
+		
+		if (sensor instanceof SensorInstantiation) {
+			SensorInstantiation sensorInstantiation = (SensorInstantiation) sensor;
+			expression = sensorInstantiation.getInner().getPin();
+			
+		}
+		else if (sensor instanceof SensorReference) {
+			SensorReference sensorReference = (SensorReference) sensor;
+			expression = sensorReference.getRef().getSensor().getPin();
+		}
+		
+		if (expression == null) {
+			throw new UnsupportedOperationException("The type of sensor is not recognized");
+		}
+		
+		return EnvironmentalMonitoringGenerator.compute(expression);	
 	}
 	
 }

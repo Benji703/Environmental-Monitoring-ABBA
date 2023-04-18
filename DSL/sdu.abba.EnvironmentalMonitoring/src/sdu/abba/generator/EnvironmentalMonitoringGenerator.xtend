@@ -150,8 +150,8 @@ class EnvironmentalMonitoringGenerator extends AbstractGenerator {
 	def int pin(Sensor sensor) {
 		
 		switch (sensor) {
-			SensorInstantiation: sensor.inner.pin.compute
-			SensorReference: sensor.ref.sensor.pin.compute
+			SensorInstantiation: 	sensor.inner.pin.compute
+			SensorReference: 		sensor.ref.sensor.pin.compute
 			default: 0
 		}
 	}
