@@ -9,6 +9,7 @@ import java.util.HashSet;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.validation.Check;
 
+import sdu.abba.environmentalMonitoring.Binding;
 import sdu.abba.environmentalMonitoring.EnvironmentalMonitoringPackage;
 import sdu.abba.environmentalMonitoring.Machine;
 import sdu.abba.environmentalMonitoring.Model;
@@ -17,6 +18,7 @@ import sdu.abba.environmentalMonitoring.SensorInstantiation;
 import sdu.abba.environmentalMonitoring.SensorInstantiationInner;
 import sdu.abba.environmentalMonitoring.SensorReference;
 import sdu.abba.environmentalMonitoring.Setting;
+import sdu.abba.environmentalMonitoring.VariableBinding;
 
 /**
  * This class contains custom validation rules. 
@@ -105,6 +107,24 @@ public class EnvironmentalMonitoringValidator extends AbstractEnvironmentalMonit
 		}
 		
 		throw new UnsupportedOperationException("The type of sensor is not recognized");
+		
+	}
+	
+	@Check
+	public void checkBindingNamesAreNotDuplicated(Model model) {
+		
+		HashSet<String> names = new HashSet<>();
+		
+		EList<Binding> bindings = model.getVariables();
+		for (int i = 0; i < bindings.size(); i++) {
+			Binding binding = bindings.get(i);
+			
+			if (names.contains(binding.getName())) {
+				error("This variable name is already in use", EnvironmentalMonitoringPackage.Literals.MODEL__VARIABLES, i);
+			}
+			
+			names.add(binding.getName());
+		}
 		
 	}
 	
