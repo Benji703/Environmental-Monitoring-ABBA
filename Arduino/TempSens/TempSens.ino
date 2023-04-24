@@ -229,7 +229,8 @@ void callback(char* topic, byte* message, unsigned int length) {
       setBatchSize(newBatchSize);
     }
 
-    isConfigured = true; 
+    checkConfigValidity();
+    
   }
 
   if (String(topic) == "sensor/temperature") {
@@ -244,7 +245,14 @@ void sendHeartBeat() {
   client.publish("heartbeats", payload);
 }
 
-
+//Checks if the config is valid to run on the esp32. If not, the isConfigured boolean is set to false
+void checkConfigValidity() {
+  if (batchSize > arraySize) {
+    isConfigured = false; 
+  } else {
+    isConfigured = true; 
+  }
+}
 /*
 void allocateArray() {
    measurements = (float *) malloc(batchSize * sizeof(float));
