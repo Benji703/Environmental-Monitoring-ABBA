@@ -1,8 +1,3 @@
-/*********
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com  
-*********/
-
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <WiFi.h>
@@ -20,7 +15,7 @@ NTPClient timeClient(ntpUDP);
 //MQTT
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* mqtt_server = "192.168.204.26";
+const char* mqtt_server = "192.168.242.26";
 const char* client_id = "m1";
 
 boolean isConfigured = false;
@@ -32,6 +27,10 @@ float interval = 0;
 
 int batchSize = 0;
 int batchNum = 0;
+
+unsigned long lastMeasureTime;
+unsigned long lastHeartBeatTime;
+int heartBeatInterval = 10000;
 
 const int arraySize = 1000;
 float measurements[arraySize];
@@ -72,16 +71,27 @@ void setup() {
 
 void loop() {
   if (isConfigured) {
+    lastMeasureTime = 0;
+    lastHeartBeatTime = 0;
+  }
+  while (isConfigured) {
     checkMQTT();
+    if (millis() > lastMeasureTime + interval ) {
+      measureTemp();
+      lastMeasureTime = millis();
+    }
+    if (millis() > lastHeartBeatTime + heartBeatInterval) {
+      sendHeartBeat();
+      lastHeartBeatTime = millis();
+    }
     if ( batchNum > batchSize-1) {
       Serial.println("Sending batch");
       sendBatch();
       Serial.println("Batch sent!");
-    }
-    measureTemp();
-  } else {
-    checkMQTT();
+    } 
+      
   }
+  checkMQTT();
 }
 
 void measureTemp() {
@@ -93,8 +103,6 @@ void measureTemp() {
   measurements[batchNum] = sensors.getTempCByIndex(0);
   timeArr[batchNum] = currentTime;
   batchNum = batchNum + 1;
-
-  customDelay(interval); //Amount of miliseconds between each meassurement
 }
 
 void checkMQTT() {
@@ -112,6 +120,7 @@ void customDelay(int delayMilli) {
     }
     client.loop();
   }
+  //sendHeartBeat();
 }
 
 void setSampleRate(float samp) {
@@ -227,6 +236,14 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.println(messageTemp);
   }
 }
+
+void sendHeartBeat() {
+  String heartbeat = "{ \"machine_id\": \"" + (String)client_id + "\" }";
+  
+  const char* payload = heartbeat.c_str();
+  client.publish("heartbeats", payload);
+}
+
 
 /*
 void allocateArray() {
