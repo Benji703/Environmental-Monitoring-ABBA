@@ -33,9 +33,17 @@ services:
     depends_on:
       - mosquitto
   temperature-subscriber:
-    build: ./python-services/subscribers
+    build: ./python-services/subscribers/temperature
     ports:
       - "5000:5000"
+    volumes:
+      - .:/code
+    depends_on:
+      - mosquitto
+  heartbeat-subscriber:
+    build: ./python-services/subscribers/heartbeat
+    ports:
+      - "6000:6000"
     volumes:
       - .:/code
     depends_on:
@@ -55,4 +63,4 @@ volumes:
 
 networks:
   default:
-    name: mqtt-network
+    name: backend-network
