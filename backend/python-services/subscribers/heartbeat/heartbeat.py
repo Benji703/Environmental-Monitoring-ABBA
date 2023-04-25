@@ -12,7 +12,6 @@ def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload.decode("utf-8"))
     response = requests.post( url=url, headers=headers, json=parsed_json)
     return response
-    #print("The backend received message: ", str(message.payload.decode("utf-8")))
 
 client = mqtt.Client("heartbeat_consumer")
 client.connect("mosquitto", 1883)
