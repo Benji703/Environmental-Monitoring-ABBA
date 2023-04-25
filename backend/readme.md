@@ -51,3 +51,5 @@ curl -X POST http://localhost:8080/config -H "Content-Type: application/json" -d
 
 # Source
 The origin of the MQTT broker comes from vvatelot's reposetory: *https://github.com/vvatelot/mosquitto-docker-compose*
+
+curl -X POST http://localhost:3000/receive-json -H "Content-Type: application/json" -d '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 100.0, "batchSize": 3000 } }, { "name": "s2", "settings": { "samplingRate": 3.3333333, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 1666.6666, "batchSize": 300 } } ] } ]'
