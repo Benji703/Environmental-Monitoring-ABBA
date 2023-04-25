@@ -9,11 +9,14 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, client!'
 
-data = {}
+data = []
 
 @app.route('/receive-json', methods=['POST'])
 def receive_json():
-    data.update(request.json)
+    if(len(data) > 20):
+        data.pop(0)
+    data.append(request.json)
+    #data.update(request.json)
     return 'Received JSON'
 
 @app.route('/show-json', methods=['GET'])

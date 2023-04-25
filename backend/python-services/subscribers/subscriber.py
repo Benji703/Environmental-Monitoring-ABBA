@@ -5,12 +5,12 @@ import time
 import json
 
 app = Flask(__name__)
+headers = {"Content-Type": "application/json; charset=utf-8"}
+url = 'http://client:3000/receive-json'
 
 def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload.decode("utf-8"))
-    headers = {"Content-Type": "application/json; charset=utf-8"}
-    #url = 
-    response = requests.post( url='http://client:3000/receive-json', headers=headers, json=parsed_json)
+    response = requests.post( url=url, headers=headers, json=parsed_json)
     return response
     #print("The backend received message: ", str(message.payload.decode("utf-8")))
 
