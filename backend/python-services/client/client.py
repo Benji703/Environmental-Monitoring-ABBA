@@ -12,16 +12,16 @@ def hello_world():
 temperatures = []
 heartbeats = []
 
-@app.route('/receive-json', methods=['POST'])
-def receive_json():
+@app.route('/receive-temperature', methods=['POST'])
+def receive_temperature():
     if(len(temperatures) > 20):
         temperatures.pop(0)
     temperatures.append(request.json)
     #data.update(request.json)
     return 'Received Temperature'
 
-@app.route('/show-json', methods=['GET'])
-def show_json():
+@app.route('/show-temperature', methods=['GET'])
+def show_temperature():
     return jsonify(temperatures)
 
 

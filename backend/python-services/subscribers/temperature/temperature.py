@@ -6,7 +6,7 @@ import json
 
 app = Flask(__name__)
 headers = {"Content-Type": "application/json; charset=utf-8"}
-url = 'http://client:3000/receive-json'
+url = 'http://client:3000/receive-temperature'
 
 def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload.decode("utf-8"))
