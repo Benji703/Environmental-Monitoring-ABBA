@@ -25,7 +25,7 @@ services:
         protocol: tcp
         mode: host
   config-publisher:
-    build: ./python-services/publishers
+    build: ./Python-services/Publishers
     ports:
       - "8080:8080"
     volumes:
@@ -33,7 +33,7 @@ services:
     depends_on:
       - mosquitto
   temperature-subscriber:
-    build: ./python-services/subscribers/temperature
+    build: ./Python-services/Subscribers/Temperature
     ports:
       - "5000:5000"
     volumes:
@@ -41,7 +41,7 @@ services:
     depends_on:
       - mosquitto
   heartbeat-subscriber:
-    build: ./python-services/subscribers/heartbeat
+    build: ./Python-services/Subscribers/Heartbeat
     ports:
       - "6000:6000"
     volumes:
@@ -49,7 +49,7 @@ services:
     depends_on:
       - mosquitto
   client:
-    build: ./python-services/client
+    build: ./Python-services/Client
     ports:
       - "3000:3000"
     volumes:

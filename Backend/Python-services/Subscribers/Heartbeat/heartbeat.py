@@ -10,7 +10,9 @@ url = 'http://client:3000/receive-heartbeats'
 
 def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload.decode("utf-8"))
-    response = requests.post( url=url, headers=headers, json=parsed_json)
+    timestamp = int(time.time())
+    heartbeat = {"machine id": parsed_json["machine_id"], "timestamp": timestamp}
+    response = requests.post( url=url, headers=headers, json=heartbeat)
     return response
 
 client = mqtt.Client("heartbeat_consumer")

@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-import paho.mqtt.client as mqtt
 import time
 import json
 
@@ -27,6 +26,7 @@ def show_temperature():
 
 @app.route('/receive-heartbeats', methods=['POST'])
 def receive_heartbeats():
+    #heartbeat = jsonify(machine_id=request.json, timestamp=time.time())
     heartbeats.append(request.json)
     return 'Received Heartbeat'
 
