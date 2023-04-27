@@ -70,6 +70,14 @@ void setup() {
 
 
 void loop() {
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Reconnecting to WiFi...");
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("Reconnected to WiFi");
+    }
+  }
+  
   if (isConfigured) {
     lastMeasureTime = 0;
     lastHeartBeatTime = 0;
