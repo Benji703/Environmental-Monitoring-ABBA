@@ -30,7 +30,7 @@ Start a publisher that produce to the *sensor/temerature* topic in a new shell:
 TODO: UPDATE MESSAGE
 
 ```
-mosquitto_pub -h localhost -t sensor/temperature -m 23
+mosquitto_pub -h localhost -t sensor/temperature -m "{ "machine_id": "m2", "temperatures": [22.37,22.37,22.37], "time_stamps": [1682583024,1682583025,1682583026] }"
 ```
 </br>
 
@@ -43,7 +43,7 @@ mosquitto_sub -h localhost -t "sensor/config"
 Start a publisher that produce to the *sensor/config* topic in a new shell:
 TODO: UPDATE MESSAGE
 ```
-mosquitto_pub -h localhost -t sensor/config -m '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 100.0, "batchSize": 3000 } }, { "name": "s2", "settings": { "samplingRate": 3.3333333, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 1666.6666, "batchSize": 300 } } ] } ]'
+mosquitto_pub -h localhost -t sensor/config -m '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 10.0, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate" 100, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 20, "batchSize": 200 } } ] } ]'
 ```
 </br>
 
@@ -55,7 +55,7 @@ Start a publisher that produce to the *heartbeats topic in a new shell:
 
 TODO: UPDATE MESSAGE
 ```
-mosquitto_pub -h localhost -t "heartbeats" -m ""
+mosquitto_pub -h localhost -t "heartbeats" -m "{ "machine_id": "m2" }"
 ```
 
 ### Test Entrypoint
@@ -66,8 +66,9 @@ mosquitto_sub -h localhost -t "sensor/config"
 Now run the following curl request: 
 TODO: UPDATE MESSAGE
 ```
-curl -X POST http://localhost:8080/config -H "Content-Type: application/json" -d '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 100.0, "batchSize": 3000 } }, { "name": "s2", "settings": { "samplingRate": 3.3333333, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 1666.6666, "batchSize": 300 } } ] } ]'
+curl -X POST http://localhost:8080/config -H "Content-Type: application/json" -d '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 10.0, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate" 100, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 20, "batchSize": 200 } } ] } ]'
 ```
+
 
 # Source
 The origin of the MQTT broker comes from vvatelot's reposetory: *https://github.com/vvatelot/mosquitto-docker-compose*
