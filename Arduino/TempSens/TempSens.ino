@@ -70,13 +70,7 @@ void setup() {
 
 
 void loop() {
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Reconnecting to WiFi...");
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println("Reconnected to WiFi");
-    }
-  }
+  reconnectIfNotConnected();
   
   if (isConfigured) {
     lastMeasureTime = 0;
@@ -100,6 +94,16 @@ void loop() {
       
   }
   checkMQTT();
+}
+
+void reconnectIfNotConnected() {
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Reconnecting to WiFi...");
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("Reconnected to WiFi");
+    }
+  }
 }
 
 void measureTemp() {
@@ -143,7 +147,8 @@ void setBatchSize(int newBatchSize) {
 }
 
 void sendBatch() {
-
+  reconnectIfNotConnected();
+  
   String myOutput = "{ \"machine_id\": \"" + (String)client_id + "\", \"temperatures\": [";
   
   for (int i = 0; i < batchNum; i++) {
