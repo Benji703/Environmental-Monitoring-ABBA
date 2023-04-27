@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt 
 from flask import Flask, request, jsonify
+from datetime import datetime
 import requests
 import time
 import json
@@ -11,7 +12,8 @@ url = 'http://client:3000/receive-heartbeats'
 def on_message(client, userdata, message):
     parsed_json = json.loads(message.payload.decode("utf-8"))
     timestamp = int(time.time())
-    heartbeat = {"machine id": parsed_json["machine_id"], "timestamp": timestamp}
+    date = datetime.fromtimestamp(timestamp).isoformat()
+    heartbeat = {"machine id": parsed_json["machine_id"], "timestamp": date}
     response = requests.post( url=url, headers=headers, json=heartbeat)
     return response
 
