@@ -60,11 +60,9 @@ void setup() {
 
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
-  client.setBufferSize(512);
+  client.setBufferSize(10240);
 
   timeClient.begin();
-
-  //allocateArray();
 }
 
 
@@ -74,10 +72,14 @@ void loop() {
     lastMeasureTime = 0;
     lastHeartBeatTime = 0;
   }
+  int measurementNum = 0;
   while (isConfigured) {
     checkMQTT();
     if (millis() > lastMeasureTime + interval ) {
       measureTemp();
+      measurementNum++;
+      Serial.print("Took measurement: ");
+      Serial.println(measurementNum);
       lastMeasureTime = millis();
     }
     if (millis() > lastHeartBeatTime + heartBeatInterval) {
@@ -88,6 +90,7 @@ void loop() {
       Serial.println("Sending batch");
       sendBatch();
       Serial.println("Batch sent!");
+      measurementNum = 0;
     } 
       
   }
@@ -120,7 +123,6 @@ void customDelay(int delayMilli) {
     }
     client.loop();
   }
-  //sendHeartBeat();
 }
 
 void setSampleRate(float samp) {
@@ -130,7 +132,6 @@ void setSampleRate(float samp) {
 
 void setBatchSize(int newBatchSize) {
   batchSize = newBatchSize;
-  //TODO: Send current measurements
   batchNum = 0;
 }
 
@@ -154,17 +155,14 @@ void sendBatch() {
       break;
     }
     myOutput += (String)timeArr[i] + ",";
-  }
+  } 
   
   myOutput += "] }";
+  Serial.println(myOutput);
 
-  //DynamicJsonDocument doc(1024);
-  //doc["temperature"] = sendMes;
-  //serializeJson(doc, myOutput);
   const char* payload = myOutput.c_str();
   client.publish("sensor/temperature", payload);
   
-  //allocateArray();
   batchNum = 0;
 }
 
@@ -200,10 +198,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     Serial.print((char)message[i]);
     messageTemp += (char)message[i];
   }
-  // Feel free to add more if statements to control more GPIOs with MQTT
 
-  // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
-  // Changes the output state according to the message
   if (String(topic) == "sensor/config") {
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, messageTemp);
@@ -253,12 +248,4 @@ void checkConfigValidity() {
     isConfigured = true; 
   }
 }
-/*
-void allocateArray() {
-   measurements = (float *) malloc(batchSize * sizeof(float));
-    if (measurements == NULL) {
-      Serial.println("Failed to allocate memory for measurements array");
-      return;
-    }
-}
-*/
+
