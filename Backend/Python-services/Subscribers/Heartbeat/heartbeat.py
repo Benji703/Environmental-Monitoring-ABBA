@@ -18,7 +18,7 @@ def on_message(client, userdata, message):
     timestamp = int(time.time())
     date = datetime.fromtimestamp(timestamp).isoformat()
     heartbeat = {"machine_id": parsed_json, "timestamp": date}
-    print(heartbeat)
+    #print(heartbeat)
     response = requests.post( url=url, headers=headers, json=heartbeat)
     return response
 

@@ -13,7 +13,7 @@ def on_connect(client, userdata, flags, rc):
     
 
 def on_message(client, userdata, message):
-    print("The backend received message: ", str(message.payload.decode("utf-8")))
+   # print("The backend received message: ", str(message.payload.decode("utf-8")))
     parsed_json = json.loads(message.payload.decode("utf-8"))
     response = requests.post( url=url, headers=headers, json=parsed_json)
     return response

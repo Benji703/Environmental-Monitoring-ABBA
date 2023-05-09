@@ -27,10 +27,9 @@ Start subscriber that consume to the *sensor/temperature* topic in a new shell:
 mosquitto_sub -h localhost -t "sensor/temperature"
 ```
 Start a publisher that produce to the *sensor/temerature* topic in a new shell:
-TODO: UPDATE MESSAGE
 
 ```
-mosquitto_pub -h localhost -t sensor/temperature -m "{ "machine_id": "m2", "temperatures": [22.37,22.37,22.37], "time_stamps": [1682583024,1682583025,1682583026] }"
+mosquitto_pub -h localhost -t sensor/temperature -m '{"machine_id": "m2","temperatures": [22.37, 22.37, 22.37],"time_stamps": [1682583024, 1682583025,  1682583026]}'
 ```
 </br>
 
@@ -41,9 +40,8 @@ Start subscriber that consume to the *sensor/config* topic in a new shell:
 mosquitto_sub -h localhost -t "sensor/config"
 ```
 Start a publisher that produce to the *sensor/config* topic in a new shell:
-TODO: UPDATE MESSAGE
 ```
-mosquitto_pub -h localhost -t sensor/config -m '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 10.0, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate" 100, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 20, "batchSize": 200 } } ] } ]'
+mosquitto_pub -h localhost -t sensor/config -m '[{ "name": "m1", "sensors": [{ "name": "s1", "settings": { "samplingRate": 3.2, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate": 5, "batchSize": 50 } }] }, { "name": "m2", "sensors": [{ "name": "s1", "settings": { "samplingRate": 1, "batchSize": 20 } }] }]'
 ```
 </br>
 
@@ -53,7 +51,6 @@ mosquitto_sub -h localhost -t "heartbeats"
 ```
 Start a publisher that produce to the *heartbeats topic in a new shell:
 
-TODO: UPDATE MESSAGE
 ```
 mosquitto_pub -h localhost -t "heartbeats" -m "{ "machine_id": "m2" }"
 ```
@@ -64,9 +61,8 @@ Start subscriber that consume to the *sensor/config* topic in a new shell:
 mosquitto_sub -h localhost -t "sensor/config"
 ```
 Now run the following curl request: 
-TODO: UPDATE MESSAGE
 ```
-curl -X POST http://localhost:8080/config -H "Content-Type: application/json" -d '[ { "name": "m1", "sensors": [ { "name": "s1", "settings": { "samplingRate": 10.0, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate" 100, "batchSize": 1000 } } ] }, { "name": "m2", "sensors": [ { "name": "s1", "settings": { "samplingRate": 20, "batchSize": 200 } } ] } ]'
+curl -X POST http://localhost:8080/config -H "Content-Type: application/json" -d '[{ "name": "m1", "sensors": [{ "name": "s1", "settings": { "samplingRate": 3.2, "batchSize": 30 } }, { "name": "s2", "settings": { "samplingRate": 5, "batchSize": 50 } }] }, { "name": "m2", "sensors": [{ "name": "s1", "settings": { "samplingRate": 1, "batchSize": 20 } }] }]'
 ```
 
 
