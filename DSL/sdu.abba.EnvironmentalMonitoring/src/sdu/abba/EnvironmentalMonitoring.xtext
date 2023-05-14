@@ -23,7 +23,7 @@ SensorInstantiation:
 SensorInstantiationInner:
 	{SensorInstantiationInner} 
 	'pin' '=' pin=Expression
-	settings+=(Setting)+		// TODO: Make validation that ensures both settings are set
+	settings+=(Setting)+
 ;
 
 Setting:
@@ -31,7 +31,7 @@ Setting:
 ;
 
 SamplingRate:
-	'sampling' 'rate' '=' value=Factor ('/'|'per') unit=Unit	// Allows for expression when they are inside ( )
+	'sampling' 'rate' '=' value=Factor ('/'|'per') unit=Unit
 ;
 
 BatchSize:
@@ -41,7 +41,7 @@ BatchSize:
 
 Unit returns Unit:
 	{Second} ('s'|'second') | 
-	{Minute} ('m'|'month') | 
+	{Minute} ('m'|'minute') | 
 	{Hour} ('h'|'hour') | 
 	{Day} ('d'|'day')
 ;
@@ -55,7 +55,7 @@ Term returns Expression:
 ;
 
 Factor returns Expression:
-	Number | '(' Expression ')' | VariableBinding | VariableReference
+	Number | '(' Expression ')' | VariableReference
 ;
 
 Number:
