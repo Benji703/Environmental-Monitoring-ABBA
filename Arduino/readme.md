@@ -59,4 +59,4 @@ Now select the USB port in which the ESP32 is connected to the machine.
 
 Now the program is runnable. 
 
-To test the *temperature measurement* and the *config loading* head to [Test Backend](../backend/readme.md).
+To test the *temperature measurement* and the *config loading* head to [Test Backend](../Backend/readme.md).
